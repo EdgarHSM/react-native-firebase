@@ -97,7 +97,7 @@ public class RNFirebaseNotifications extends ReactContextBaseJavaModule implemen
   public void getInitialNotification(Promise promise) {
     WritableMap notificationOpenMap = null;
     if (getCurrentActivity() != null) {
-      notificationOpenMap = parseIntentForNotification(getCurrentActivity().getIntent());
+      notificationOpenMap = parseIntentForNotification(getCurrentActivity().getIntent(), "getInitialNotification");
     }
     promise.resolve(notificationOpenMap);
   }
@@ -272,7 +272,7 @@ public class RNFirebaseNotifications extends ReactContextBaseJavaModule implemen
 
   @Override
   public void onNewIntent(Intent intent) {
-    WritableMap notificationOpenMap = parseIntentForNotification(intent);
+    WritableMap notificationOpenMap = parseIntentForNotification(intent, "onNewIntent");
     if (notificationOpenMap != null) {
       Utils.sendEvent(
         getReactApplicationContext(),
@@ -286,7 +286,17 @@ public class RNFirebaseNotifications extends ReactContextBaseJavaModule implemen
   // End ActivityEventListener methods
   //////////////////////////////////////////////////////////////////////
 
-  private WritableMap parseIntentForNotification(Intent intent) {
+  private WritableMap parseIntentForNotification(Intent intent, String caller) {
+    Log.d("AEIOU-RN-FIREBASE", "parseIntentForNotification");
+    if(caller.equals("getInitialNotification")){
+      Log.d("AEIOU-RN-FIREBASE", "Called by getInitialNotification");
+      if(intent.hasExtra("handleThisIntent")){
+        Log.d("AEIOU-RN-FIREBASE","Intent has the handleThisIntent extra, carry on as nornmal ...");
+      }else{
+        Log.d("AEIOU-RN-FIREBASE","Intent doesn't have the handleThisIntent extra, return null ...");
+        return null;
+      }
+    }
     WritableMap notificationOpenMap = parseIntentForRemoteNotification(intent);
     if (notificationOpenMap == null) {
       notificationOpenMap = parseIntentForLocalNotification(intent);
